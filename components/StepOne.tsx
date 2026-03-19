@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 interface Props {
   rawQuestion: string;
@@ -12,67 +12,90 @@ interface Props {
 
 export default function StepOne({ rawQuestion, onQuestionChange, onGenerate, loading, done }: Props) {
   const [isRecording, setIsRecording] = useState(false);
-  const [voiceSupported, setVoiceSupported] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const recognitionRef = useRef<any>(null);
-  const isRecordingRef = useRef(false);
-  const finalTextRef = useRef('');
+  const [transcribing, setTranscribing] = useState(false);
+  const [micError, setMicError] = useState('');
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
 
   const badgeState = loading ? 'active' : done ? 'done' : 'waiting';
   const badgeLabel = loading ? 'Generating…' : done ? 'Done' : 'Ready';
   const stepNumClass = done ? 'step-num done-num' : 'step-num s1';
   const stepNumText = done ? '✓' : '01';
 
-  useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const w = window as any;
-    const SR = w.SpeechRecognition || w.webkitSpeechRecognition;
-    if (!SR) return;
-
-    setVoiceSupported(true);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const rec: any = new SR();
-    rec.continuous = true;
-    rec.interimResults = true;
-    rec.lang = 'en-US';
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    rec.onresult = (e: any) => {
-      let interim = '';
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        if (e.results[i].isFinal) {
-          finalTextRef.current += e.results[i][0].transcript + ' ';
-        } else {
-          interim += e.results[i][0].transcript;
-        }
-      }
-      onQuestionChange((finalTextRef.current + interim).trim());
-    };
-
-    rec.onerror = () => stopVoice();
-    rec.onend = () => { if (isRecordingRef.current) rec.start(); };
-
-    recognitionRef.current = rec;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  function startVoice() {
-    if (!recognitionRef.current) return;
-    finalTextRef.current = rawQuestion;
-    isRecordingRef.current = true;
-    setIsRecording(true);
-    recognitionRef.current.start();
+  function getSupportedMimeType() {
+    const types = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg'];
+    return types.find((t) => MediaRecorder.isTypeSupported(t)) ?? '';
   }
 
-  function stopVoice() {
-    isRecordingRef.current = false;
+  function getExtension(mimeType: string) {
+    if (mimeType.includes('mp4')) return 'mp4';
+    if (mimeType.includes('ogg')) return 'ogg';
+    return 'webm';
+  }
+
+  async function startRecording() {
+    setMicError('');
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      chunksRef.current = [];
+
+      const mimeType = getSupportedMimeType();
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
+      };
+
+      recorder.onstop = async () => {
+        stream.getTracks().forEach((t) => t.stop());
+        const resolvedMime = recorder.mimeType;
+        const blob = new Blob(chunksRef.current, { type: resolvedMime });
+        await transcribeAudio(blob, resolvedMime);
+      };
+
+      recorder.start();
+      mediaRecorderRef.current = recorder;
+      setIsRecording(true);
+    } catch {
+      setMicError('Microphone access denied. Please allow mic permissions and try again.');
+    }
+  }
+
+  function stopRecording() {
+    mediaRecorderRef.current?.stop();
     setIsRecording(false);
-    recognitionRef.current?.stop();
+  }
+
+  async function transcribeAudio(blob: Blob, mimeType: string) {
+    setTranscribing(true);
+    try {
+      const ext = getExtension(mimeType);
+      const form = new FormData();
+      form.append('audio', blob);
+      form.append('filename', `recording.${ext}`);
+
+      const res = await fetch('/api/transcribe', { method: 'POST', body: form });
+      if (!res.ok) throw new Error('Transcription failed');
+
+      const data = await res.json();
+      const appended = rawQuestion ? rawQuestion.trimEnd() + ' ' + data.text : data.text;
+      onQuestionChange(appended.trim());
+    } catch {
+      setMicError('Transcription failed. Please try again or type the question manually.');
+    } finally {
+      setTranscribing(false);
+    }
   }
 
   function toggleVoice() {
-    isRecording ? stopVoice() : startVoice();
+    isRecording ? stopRecording() : startRecording();
   }
+
+  const micLabel = transcribing
+    ? 'Transcribing…'
+    : isRecording
+    ? 'Listening… (tap to stop)'
+    : 'Speak the question';
 
   return (
     <div className="step-card active">
@@ -90,18 +113,19 @@ export default function StepOne({ rawQuestion, onQuestionChange, onGenerate, loa
           rows={5}
         />
 
+        {micError && <div className="error-bar">{micError}</div>}
+
         <div className="voice-row">
           <div className="voice-row-inner">
-            {voiceSupported && (
-              <button
-                type="button"
-                className={`voice-btn${isRecording ? ' active' : ''}`}
-                onClick={toggleVoice}
-              >
-                <div className="mic-dot" />
-                <span>{isRecording ? 'Listening… (click to stop)' : 'Speak the question'}</span>
-              </button>
-            )}
+            <button
+              type="button"
+              className={`voice-btn${isRecording ? ' active' : ''}`}
+              onClick={toggleVoice}
+              disabled={transcribing}
+            >
+              <div className="mic-dot" />
+              <span>{micLabel}</span>
+            </button>
           </div>
         </div>
 

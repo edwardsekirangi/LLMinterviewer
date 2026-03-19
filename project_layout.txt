@@ -1,0 +1,37 @@
+--- Folder Layout ---
+[.claude] (...)
+.env.local
+[.git] (...)
+.gitignore
+[.next] (...)
+[app]
+    ├── [api]
+        ├── [coach]
+            └── route.ts
+        ├── [generate-script] (...)
+        └── [structure]
+            └── route.ts
+    ├── globals.css
+    ├── layout.tsx
+    └── page.tsx
+[components]
+    ├── CoachingPanel.tsx
+    ├── Header.tsx
+    ├── RoleSelector.tsx
+    ├── ScriptCard.tsx
+    ├── SessionStats.tsx
+    ├── StepOne.tsx
+    ├── StepThree.tsx
+    └── StepTwo.tsx
+[lib]
+    ├── constants.ts
+    └── types.ts
+LLM.html
+next-env.d.ts
+next.config.js
+[node_modules] (...)
+package-lock.json
+package.json
+postcss.config.js
+tailwind.config.ts
+tsconfig.json
