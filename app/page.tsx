@@ -1,5 +1,11 @@
 'use client';
 
+// This is the main page of the app. It manages the overall state and flow of the application, including:
+// - The current role selected by the user (quant, product manager, etc.)
+// - The raw question input by the user
+// - The generated script returned from the API
+// - Loading and error states
+// It renders the Header, RoleSelector, StepOne, and ScriptCard components, passing down necessary props and handlers.
 import { useRef, useState } from 'react';
 import Header from '@/components/Header';
 import RoleSelector from '@/components/RoleSelector';
