@@ -131,14 +131,26 @@ export default function StepOne({ rawQuestion, onQuestionChange, onGenerate, loa
 
         <div className="step-footer">
           <div className="char-count">{rawQuestion.length} chars</div>
-          <button
-            type="button"
-            className="btn-primary"
-            onClick={onGenerate}
-            disabled={rawQuestion.trim().length < 15 || loading}
-          >
-            Generate Bullet Script →
-          </button>
+          <div className="btn-group">
+            {rawQuestion.length > 0 && (
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => onQuestionChange('')}
+                disabled={loading}
+              >
+                Clear
+              </button>
+            )}
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={onGenerate}
+              disabled={rawQuestion.trim().length < 15 || loading}
+            >
+              Generate Bullet Script →
+            </button>
+          </div>
         </div>
       </div>
     </div>
