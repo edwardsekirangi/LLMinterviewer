@@ -4,11 +4,46 @@ import type { Role } from '@/lib/types';
 import { DEFAULT_GEMINI_MODEL, generateGeminiJson } from '@/lib/gemini';
 
 export async function POST(req: NextRequest) {
-  const { rawQuestion, role } = await req.json() as { rawQuestion: string; role: Role };
+  const { rawQuestion, role, mode, language } = await req.json() as {
+    rawQuestion: string;
+    role: Role;
+    mode?: 'interview' | 'coding';
+    language?: 'javascript' | 'cpp' | 'mql5' | 'python' | 'sql';
+  };
 
   const roleLabel = roleLabels[role] ?? roleLabels.quant;
+  const isCodingMode = mode === 'coding';
+  const selectedLanguage = language ?? 'python';
 
-  const systemPrompt = `You are an expert interview coach for ${roleLabel} roles.
+  const systemPrompt = isCodingMode
+    ? `You are an expert coding coach for ${roleLabel} roles.
+A candidate gives you a coding problem in plain English. Your job is to:
+1. Explain the problem simply
+2. Break the solution into steps a beginner can follow
+3. Return clean, well-commented starter code in ${selectedLanguage}
+4. Keep the solution practical, readable, and easy to adapt in an interview
+
+Return ONLY valid JSON - no markdown, no backticks, no preamble:
+{
+  "question_type": "technical",
+  "clean_question": "A concise coding challenge title",
+  "what_they_really_want": "What the interviewer is testing",
+  "components": [
+    { "label": "Inputs", "description": "What data goes in" }
+  ],
+  "recommended_framework": "Problem-Solution-Impact",
+  "framework_reason": "Why this approach works",
+  "code_help": {
+    "title": "Coding plan",
+    "language": "${selectedLanguage}",
+    "language_options": ["javascript", "cpp", "mql5", "python", "sql"],
+    "goal": "What the user should build",
+    "steps": ["Step 1", "Step 2", "Step 3"],
+    "starter_code": "Well-commented starter code in ${selectedLanguage}",
+    "notes": ["Important tips"]
+  }
+}`
+    : `You are an expert interview coach for ${roleLabel} roles.
 A candidate gives you a raw interview question they received. Your job is to:
 1. Identify what the interviewer is REALLY testing underneath the surface question
 2. Break the question into its components so the candidate understands exactly what to address

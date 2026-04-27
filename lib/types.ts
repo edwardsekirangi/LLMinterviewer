@@ -6,6 +6,7 @@ export interface StructuredComponent {
 }
 
 export type CodeLanguage = 'javascript' | 'cpp' | 'mql5' | 'python' | 'sql';
+export type AppSection = 'interview' | 'coding';
 
 export interface CodeHelp {
   title: string;
