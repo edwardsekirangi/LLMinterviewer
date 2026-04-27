@@ -11,13 +11,15 @@ import Header from '@/components/Header';
 import CodingHelpSection from '@/components/CodingHelpSection';
 import RoleSelector from '@/components/RoleSelector';
 import StepOne from '@/components/StepOne';
+import CodingResultCard from '@/components/CodingResultCard';
 import ScriptCard from '@/components/ScriptCard';
-import type { BulletScript, CodeLanguage, Role, AppSection } from '@/lib/types';
+import type { BulletScript, CodingResult, CodeLanguage, Role, AppSection } from '@/lib/types';
 
 export default function Home() {
   const [currentRole, setCurrentRole] = useState<Role>('quant');
   const [rawQuestion, setRawQuestion] = useState('');
   const [script, setScript] = useState<BulletScript | null>(null);
+  const [codingResult, setCodingResult] = useState<CodingResult | null>(null);
   const [showScript, setShowScript] = useState(false);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
@@ -30,6 +32,7 @@ export default function Home() {
     setLoading(true);
     setShowScript(true);
     setScript(null);
+    setCodingResult(null);
 
     try {
       const res = await fetch('/api/generate-script', {
@@ -61,6 +64,7 @@ export default function Home() {
     setLoading(true);
     setShowScript(true);
     setScript(null);
+    setCodingResult(null);
 
     try {
       const res = await fetch('/api/structure', {
@@ -77,8 +81,8 @@ export default function Home() {
         const err = await res.json();
         throw new Error(err.error ?? 'API error');
       }
-      const data: BulletScript = await res.json();
-      setScript(data);
+      const data: CodingResult = await res.json();
+      setCodingResult(data);
       setDone(true);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Unknown error';
@@ -137,9 +141,15 @@ export default function Home() {
         <CodingHelpSection loading={loading} onGenerate={handleCodingHelp} />
       )}
 
-      {showScript && (
+      {showScript && section === 'interview' && (
         <div ref={scriptCardRef}>
           <ScriptCard loading={loading} script={script} onNextQuestion={handleNextQuestion} />
+        </div>
+      )}
+
+      {showScript && section === 'coding' && (
+        <div ref={scriptCardRef}>
+          <CodingResultCard loading={loading} result={codingResult} onNewPrompt={handleNextQuestion} />
         </div>
       )}
     </div>

@@ -47,6 +47,16 @@ export interface BulletScript {
   close: string;
 }
 
+export interface CodingResult {
+  question_type: 'technical';
+  clean_question: string;
+  what_they_really_want: string;
+  components: StructuredComponent[];
+  recommended_framework: string;
+  framework_reason: string;
+  code_help: CodeHelp;
+}
+
 export type BadgeState = 'waiting' | 'active' | 'done';
 
 export interface StepBadge {
