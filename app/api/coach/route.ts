@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { roleLabels } from '@/lib/constants';
 import type { Role } from '@/lib/types';
-import { DEFAULT_GEMINI_MODEL, generateGeminiJson } from '@/lib/gemini';
+import { generateGeminiJsonWithFallback } from '@/lib/gemini';
 
 export async function POST(req: NextRequest) {
   const { answer, role, rawQuestion, framework } = await req.json() as {
@@ -32,8 +32,7 @@ Be honest. Most first attempts score 30-55.`;
 
   const userMessage = `Role: ${roleLabel}\nQuestion: ${rawQuestion}\nFramework: ${framework}\nCandidate answer: ${answer}`;
 
-  const result = await generateGeminiJson({
-    model: DEFAULT_GEMINI_MODEL,
+  const result = await generateGeminiJsonWithFallback({
     systemPrompt,
     userMessage,
   });

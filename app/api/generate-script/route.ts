@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { roleLabels } from '@/lib/constants';
 import type { Role } from '@/lib/types';
-import { DEFAULT_GEMINI_MODEL, generateGeminiJson } from '@/lib/gemini';
+import { generateGeminiJsonWithFallback } from '@/lib/gemini';
 
 export async function POST(req: NextRequest) {
   const { rawQuestion, role } = await req.json() as { rawQuestion: string; role: Role };
@@ -32,8 +32,7 @@ Rules:
 
   const userMessage = `Role: ${roleLabel}\n\nQuestion: ${rawQuestion}`;
 
-  const result = await generateGeminiJson({
-    model: DEFAULT_GEMINI_MODEL,
+  const result = await generateGeminiJsonWithFallback({
     systemPrompt,
     userMessage,
   });

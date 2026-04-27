@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { roleLabels } from '@/lib/constants';
 import type { Role } from '@/lib/types';
-import { DEFAULT_GEMINI_MODEL, generateGeminiJson } from '@/lib/gemini';
+import { generateGeminiJsonWithFallback } from '@/lib/gemini';
 
 export async function POST(req: NextRequest) {
   const { rawQuestion, role, mode, language } = await req.json() as {
@@ -82,8 +82,7 @@ Maximum 3 components. Keep all text concise.`;
 
   const userMessage = `Role I am interviewing for: ${roleLabel}\n\nRaw question: ${rawQuestion}`;
 
-  const result = await generateGeminiJson({
-    model: DEFAULT_GEMINI_MODEL,
+  const result = await generateGeminiJsonWithFallback({
     systemPrompt,
     userMessage,
   });
