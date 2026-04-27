@@ -15,6 +15,18 @@ import CodingResultCard from '@/components/CodingResultCard';
 import ScriptCard from '@/components/ScriptCard';
 import type { BulletScript, CodingResult, CodeLanguage, Role, AppSection } from '@/lib/types';
 
+async function readErrorMessage(res: Response) {
+  const text = await res.text().catch(() => '');
+  if (!text) return `API error (${res.status})`;
+
+  try {
+    const parsed = JSON.parse(text) as { error?: string };
+    return parsed.error ?? text;
+  } catch {
+    return text;
+  }
+}
+
 export default function Home() {
   const [currentRole, setCurrentRole] = useState<Role>('quant');
   const [rawQuestion, setRawQuestion] = useState('');
@@ -41,8 +53,7 @@ export default function Home() {
         body: JSON.stringify({ rawQuestion, role: currentRole }),
       });
       if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error ?? 'API error');
+        throw new Error(await readErrorMessage(res));
       }
       const data: BulletScript = await res.json();
       setScript(data);
@@ -78,8 +89,7 @@ export default function Home() {
         }),
       });
       if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error ?? 'API error');
+        throw new Error(await readErrorMessage(res));
       }
       const data: CodingResult = await res.json();
       setCodingResult(data);

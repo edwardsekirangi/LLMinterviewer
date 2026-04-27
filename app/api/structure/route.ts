@@ -94,6 +94,30 @@ Maximum 3 components. Keep all text concise.`;
 
   const text = result.text;
 
+  if (!text.trim()) {
+    return NextResponse.json({
+      question_type: 'technical',
+      clean_question: rawQuestion,
+      what_they_really_want: 'Build a clear solution and explain it well.',
+      components: [{ label: 'Core idea', description: 'State the approach before coding.' }],
+      recommended_framework: 'Problem-Solution-Impact',
+      framework_reason: 'This keeps the answer structured and practical.',
+      code_help: {
+        title: 'Coding helper',
+        language: selectedLanguage,
+        language_options: ['javascript', 'cpp', 'mql5', 'python', 'sql'],
+        goal: 'Outline a simple plan, then write commented starter code.',
+        steps: [
+          'Step 1: Clarify the inputs, outputs, and constraints.',
+          'Step 2: Pick the simplest correct approach.',
+          'Step 3: Write the solution in small commented steps.',
+        ],
+        starter_code: `// Starter code placeholder for ${selectedLanguage}`,
+        notes: ['If the model output is empty, try the prompt again.'],
+      },
+    });
+  }
+
   try {
     const parsed = JSON.parse(text);
     return NextResponse.json(parsed);
