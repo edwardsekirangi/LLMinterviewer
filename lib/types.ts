@@ -5,6 +5,18 @@ export interface StructuredComponent {
   description: string;
 }
 
+export type CodeLanguage = 'javascript' | 'cpp' | 'mql5' | 'python' | 'sql';
+
+export interface CodeHelp {
+  title: string;
+  language: CodeLanguage;
+  language_options: CodeLanguage[];
+  goal: string;
+  steps: string[];
+  starter_code: string;
+  notes: string[];
+}
+
 export interface StructuredQuestion {
   question_type: 'behavioral' | 'technical';
   clean_question: string;
@@ -12,6 +24,7 @@ export interface StructuredQuestion {
   components: StructuredComponent[];
   recommended_framework: string;
   framework_reason: string;
+  code_help?: CodeHelp;
 }
 
 export interface IdealBlock {
