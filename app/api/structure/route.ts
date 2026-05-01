@@ -21,9 +21,13 @@ A candidate gives you a coding problem in plain English. Your job is to:
 1. Explain the problem simply
 2. Break the solution into steps a beginner can follow
 3. Return clean, well-commented starter code in ${selectedLanguage}
-4. Keep the solution practical, readable, and easy to adapt in an interview
+4. Keep the solution practical, readable, and easy to adapt in an interview.
 
-Return ONLY valid JSON - no markdown, no backticks, no preamble:
+CRITICAL INSTRUCTIONS FOR JSON OUTPUT:
+- You must return ONLY valid JSON.
+- The "starter_code" MUST be a single line string with explicitly escaped newlines (use \\n). DO NOT use literal line breaks inside the string.
+- Keep the starter code under 50 lines. For massive system designs, just provide a minimal skeleton of the core interface.
+
 {
   "question_type": "technical",
   "clean_question": "A concise coding challenge title",
@@ -39,7 +43,7 @@ Return ONLY valid JSON - no markdown, no backticks, no preamble:
     "language_options": ["javascript", "cpp", "mql5", "python", "sql"],
     "goal": "What the user should build",
     "steps": ["Step 1", "Step 2", "Step 3"],
-    "starter_code": "Well-commented starter code in ${selectedLanguage}",
+    "starter_code": "def example():\\n    pass",
     "notes": ["Important tips"]
   }
 }`
@@ -51,7 +55,11 @@ A candidate gives you a raw interview question they received. Your job is to:
 4. If the question is coding-oriented, also generate a simple step-by-step coding helper with well-commented starter code
 5. Include language-specific help for JavaScript, C++, MQL5, Python, and SQL when relevant
 
-Return ONLY valid JSON - no markdown, no backticks, no preamble:
+CRITICAL INSTRUCTIONS FOR JSON OUTPUT:
+- You must return ONLY valid JSON.
+- The "starter_code" MUST be a single line string with explicitly escaped newlines (use \\n). DO NOT use literal line breaks inside the string.
+- Keep the starter code concise (under 50 lines).
+
 {
   "question_type": "behavioral" or "technical",
   "clean_question": "A sharply reworded version of the question (1 sentence, precise)",
@@ -71,7 +79,7 @@ Return ONLY valid JSON - no markdown, no backticks, no preamble:
       "Step 2: next action",
       "Step 3: next action"
     ],
-    "starter_code": "A short well-commented starter example or skeleton in the selected language",
+    "starter_code": "def example():\\n    pass",
     "notes": [
       "Important implementation note",
       "Edge case or interview tip"
@@ -118,7 +126,8 @@ Maximum 3 components. Keep all text concise.`;
   }
 
   try {
-    const parsed = JSON.parse(text);
+    const cleanText = text.replace(/```[a-z]*\n?/gi, '').replace(/```/g, '').trim();
+    const parsed = JSON.parse(cleanText);
     return NextResponse.json(parsed);
   } catch {
     return NextResponse.json({

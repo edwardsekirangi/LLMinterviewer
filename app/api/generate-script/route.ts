@@ -41,10 +41,10 @@ Rules:
     return NextResponse.json({ error: result.error }, { status: result.status });
   }
 
-  const text = result.text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+  const cleanText = result.text.replace(/```[a-z]*\n?/gi, '').replace(/```/g, '').trim();
 
   try {
-    const parsed = JSON.parse(text);
+    const parsed = JSON.parse(cleanText);
     return NextResponse.json(parsed);
   } catch {
     return NextResponse.json({

@@ -42,7 +42,7 @@ export async function generateGeminiJson({
         generationConfig: {
           responseMimeType: 'application/json',
           temperature: 0.2,
-          maxOutputTokens: 1200,
+          maxOutputTokens: 8192,
         },
       }),
     });
@@ -82,7 +82,7 @@ export async function generateGeminiJson({
   }
 }
 
-export const DEFAULT_GEMINI_MODELS = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-1.5-pro'] as const;
+export const DEFAULT_GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'] as const;
 
 export async function generateGeminiJsonWithFallback({
   models = DEFAULT_GEMINI_MODELS,
@@ -107,7 +107,7 @@ export async function generateGeminiJsonWithFallback({
 
       const retryable = /high demand|quota|rate limit|temporarily unavailable|network error|empty response|invalid json/i.test(errorMessage);
       if (!retryable) {
-        return result;
+        break;
       }
 
       if (attempt === 0) {

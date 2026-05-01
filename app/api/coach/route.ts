@@ -44,7 +44,8 @@ Be honest. Most first attempts score 30-55.`;
   const text = result.text;
 
   try {
-    const parsed = JSON.parse(text);
+    const cleanText = text.replace(/```[a-z]*\n?/gi, '').replace(/```/g, '').trim();
+    const parsed = JSON.parse(cleanText);
     return NextResponse.json(parsed);
   } catch {
     return NextResponse.json({
