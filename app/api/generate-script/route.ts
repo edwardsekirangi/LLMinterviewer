@@ -8,12 +8,12 @@ export async function POST(req: NextRequest) {
 
   const roleLabel = roleLabels[role] ?? roleLabels.quant;
 
-  const systemPrompt = `You are an elite ${roleLabel} interview coach.
+  const systemPrompt = `You are an elite ${roleLabel} interview assistant.
 The candidate gives you a raw interview question.
 Return ONLY a clean JSON object with exactly this structure (no markdown, no extra text):
 
 {
-  "intro": "The exact first sentence they should say (natural & confident)",
+  "intro": "The exact sentence they should say (natural & confident)",
   "bullets": [
     "Full spoken sentence for bullet 1",
     "Full spoken sentence for bullet 2"
@@ -23,7 +23,7 @@ Return ONLY a clean JSON object with exactly this structure (no markdown, no ext
 
 Rules:
 - 5-8 bullets maximum
-- Each bullet is a complete, natural sentence ready to speak out loud
+- Each bullet is a complete, natural idea ready to speak out loud
 - Sound professional but conversational (no jargon unless role-appropriate)
 - For Quant/Algo: include frameworks, math, or code steps
 - For DS/SWE: mention metrics, tools, trade-offs

@@ -150,14 +150,26 @@ export default function CodingHelpSection({ loading, onGenerate }: Props) {
 
         <div className="step-footer">
           <div className="char-count">{prompt.length} chars</div>
-          <button
-            type="button"
-            className="btn-primary"
-            disabled={loading || transcribing || prompt.trim().length < 10}
-            onClick={() => onGenerate({ prompt, language })}
-          >
-            Get coding help →
-          </button>
+          <div className="btn-group">
+            {prompt.length > 0 && (
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => setPrompt('')}
+                disabled={loading || transcribing}
+              >
+                Clear
+              </button>
+            )}
+            <button
+              type="button"
+              className="btn-primary"
+              disabled={loading || transcribing || prompt.trim().length < 10}
+              onClick={() => onGenerate({ prompt, language })}
+            >
+              Get coding help →
+            </button>
+          </div>
         </div>
       </div>
     </div>

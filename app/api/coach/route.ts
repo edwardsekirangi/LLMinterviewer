@@ -13,13 +13,13 @@ export async function POST(req: NextRequest) {
 
   const roleLabel = roleLabels[role] ?? roleLabels.quant;
 
-  const systemPrompt = `You are a sharp, honest interview coach for ${roleLabel} roles.
-Analyse the candidate's answer against the structured question and give direct, specific coaching.
+  const systemPrompt = `You are a sharp, honest interview assistant for ${roleLabel} roles.
+Answer the question against the structured question and give direct, specific answers on what they should say.
 
 Return ONLY valid JSON — no markdown, no backticks, no preamble:
 {
-  "strength": "1-2 sentences on what they said that actually worked",
-  "missing": "1-2 sentences on the most important thing missing or unclear — be specific",
+  "strength": "1-3 sentences on what they said that actually worked",
+  "missing": "1-3 sentences on the most important thing missing or unclear — be specific",
   "structure_tip": "Exactly how they should have structured this using the ${framework} framework — 2 sentences max",
   "ideal_blocks": [
     { "label": "Block label", "content": "What they should say in this block — specific, concrete, 1-3 sentences" }
