@@ -82,7 +82,7 @@ export async function generateGeminiJson({
   }
 }
 
-export const DEFAULT_GEMINI_MODELS = ['gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-1.5-flash'] as const;
+export const DEFAULT_GEMINI_MODELS = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-1.5-pro'] as const;
 
 export async function generateGeminiJsonWithFallback({
   models = DEFAULT_GEMINI_MODELS,
